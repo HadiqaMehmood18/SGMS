@@ -9,7 +9,9 @@ const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// DB config section – replace entirely
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -33,19 +35,19 @@ const upload = multer({
 });
 
 const config = {
-    user: 'sa',
-    password: 'hm1808',
-    server: 'MUZZAMMIL-PC',
-    database: 'SGMS',
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    server: process.env.DB_SERVER,  // Will be like 'yourserver.database.windows.net'
+    database: process.env.DB_NAME,
     options: {
-        encrypt: true,
-        trustServerCertificate: true,
+        encrypt: true,  // Required for Azure SQL
+        trustServerCertificate: false,  // Secure default for Azure
         enableArithAbort: true,
-        connectionTimeout: 60000,  // 60 seconds
-        requestTimeout: 60000,     // 60 seconds
-        cancelTimeout: 5000,       // 5 seconds
-        acquireTimeoutMillis: 60000, // 60 seconds
-        idleTimeoutMillis: 30000   // 30 seconds
+        connectionTimeout: 60000,
+        requestTimeout: 60000,
+        cancelTimeout: 5000,
+        acquireTimeoutMillis: 60000,
+        idleTimeoutMillis: 30000
     },
     pool: {
         max: 10,
@@ -54,15 +56,17 @@ const config = {
     }
 };
 
+// Email config section – replace entirely
 const emailConfig = {
     host: 'smtp.gmail.com',
     port: 587,
     secure: false,
     auth: {
-        user: 'hadiqamehmood18@gmail.com',
-        pass: 'askjojylzuenphbl'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 };
+
 
 const transporter = nodemailer.createTransport(emailConfig);
 let pool;
