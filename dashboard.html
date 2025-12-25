@@ -1,0 +1,2605 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGMS Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --accent: #3b82f6;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --info: #0891b2;
+        }
+
+        body {
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            min-height: 100vh;
+        }
+
+        /* SUCCESS TOAST NOTIFICATION */
+        .success-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-left: 5px solid #10b981;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 20px 25px;
+            display: none;
+            z-index: 99999;
+            min-width: 350px;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .success-toast.show {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .success-toast.error {
+            border-left-color: #ef4444;
+        }
+
+        .success-toast .icon {
+            font-size: 28px;
+            color: #10b981;
+        }
+
+        .success-toast.error .icon {
+            color: #ef4444;
+        }
+
+        .success-toast .content {
+            flex: 1;
+        }
+
+        .success-toast .content strong {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #1f2937;
+        }
+
+        .success-toast .content p {
+            margin: 0;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .success-toast .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .success-toast .close-btn:hover {
+            color: #1f2937;
+            transform: scale(1.2);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .success-toast.hiding {
+            animation: slideOutRight 0.5s ease-out forwards;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .login-header i {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .login-header h2 {
+            color: #1f2937;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .login-header p {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .login-header .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-header .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-back-home {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .btn-back-home:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .dashboard-container {
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* ENHANCED NAVBAR WITH ACTIVE STATES */
+        .navbar-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-custom .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+            font-size: 1.3rem;
+            transition: all 0.3s;
+        }
+
+        .navbar-custom .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .navbar-custom .nav-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            margin: 0 5px;
+            padding: 10px 20px !important;
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .navbar-custom .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .navbar-custom .nav-link.active {
+            background: rgba(255, 255, 255, 0.25);
+            color: white !important;
+            font-weight: 600;
+        }
+
+        .navbar-custom .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: white;
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .navbar-custom .nav-link:hover::before,
+        .navbar-custom .nav-link.active::before {
+            width: 80%;
+        }
+
+        .nav-link i {
+            margin-right: 5px;
+            transition: transform 0.3s;
+        }
+
+        .nav-link:hover i {
+            transform: scale(1.2);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon.pending { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
+        .stat-icon.progress { background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); }
+        .stat-icon.resolved { background: linear-gradient(135deg, #34d399 0%, #10b981 100%); }
+        .stat-icon.rejected { background: linear-gradient(135deg, #f87171 0%, #ef4444 100%); }
+
+        .stat-icon i { color: white; }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f3f4f6;
+            cursor: pointer;
+        }
+
+        .badge-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-inprogress { background: #dbeafe; color: #1e40af; }
+        .badge-resolved { background: #d1fae5; color: #065f46; }
+        .badge-rejected { background: #fee2e2; color: #991b1b; }
+
+        .badge-priority {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-low { background: #e0e7ff; color: #3730a3; }
+        .badge-medium { background: #fef3c7; color: #92400e; }
+        .badge-high { background: #fed7aa; color: #9a3412; }
+        .badge-critical { background: #fee2e2; color: #991b1b; }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .response-item {
+            background: #f9fafb;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .response-author {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .response-date {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #d1d5db;
+            margin-bottom: 20px;
+        }
+
+        .file-upload-box {
+            border: 2px dashed #d1d5db;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload-box:hover {
+            border-color: var(--primary);
+            background: #f9fafb;
+        }
+
+        .file-upload-box.dragover {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .attachment-preview {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .attachment-preview i {
+            font-size: 2rem;
+            margin-right: 15px;
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .stat-card {
+                margin-bottom: 15px;
+            }
+            
+            .dashboard-container {
+                padding: 10px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .success-toast {
+                min-width: 300px;
+                right: 10px;
+                top: 10px;
+            }
+        }    /* Dark Mode Styles */
+              .theme-toggle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+body.dark-mode {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #f8fafc;
+}
+
+body.dark-mode .login-card {
+    background: rgba(15, 23, 42, 0.95);
+    color: #f8fafc;
+}
+
+body.dark-mode .login-header h2 {
+    color: #f8fafc;
+}
+
+body.dark-mode .login-header p {
+    color: #cbd5e1;
+}
+
+body.dark-mode .form-label {
+    color: #e2e8f0;
+}
+body.dark-mode .navbar-custom {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-mode .stat-card,
+        body.dark-mode .content-card {
+            background: #1e293b;
+            color: #f8fafc;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-mode .stat-number {
+            color: #f8fafc;
+        }
+
+        body.dark-mode .stat-label {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .table {
+            color: #f8fafc;
+        }
+
+        body.dark-mode .table-hover tbody tr:hover {
+            background-color: #334155;
+        }
+        body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > td {
+            background-color: rgba(30, 41, 59, 0.5);
+        }
+
+        body.dark-mode .response-item {
+            background: #1e293b;
+            border-left-color: #8ab4ff;
+        }
+
+        body.dark-mode .response-author {
+            color: #f8fafc;
+        }
+
+        body.dark-mode .response-date {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .empty-state {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .empty-state i {
+            color: #475569;
+        }
+        body.dark-mode .file-upload-box {
+            border-color: #475569;
+            background: #1e293b;
+        }
+
+        body.dark-mode .file-upload-box:hover {
+            border-color: #8ab4ff;
+            background: #334155;
+        }
+
+        body.dark-mode .file-upload-box.dragover {
+            border-color: #8ab4ff;
+            background: #475569;
+        }
+
+        body.dark-mode .attachment-preview {
+            background: #334155;
+        }
+
+        body.dark-mode .modal-content {
+            background: #1e293b;
+            color: #f8fafc;
+        }
+        body.dark-mode .modal-header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        body.dark-mode .success-toast {
+            background: #1e293b;
+            color: #f8fafc;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        body.dark-mode .success-toast .content strong {
+            color: #f8fafc;
+        }
+
+        body.dark-mode .success-toast .content p {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .success-toast .close-btn {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .success-toast .close-btn:hover {
+            color: #f8fafc;
+        }
+
+        body.dark-mode .text-muted {
+            color: #94a3b8 !important;
+        }
+
+        body.dark-mode .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            color: #facc15;
+        }
+
+        body.dark-mode .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Notification Styles */
+        .notification-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.1rem;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #667eea;
+        }
+
+        .notification-dropdown {
+            min-width: 350px;
+            max-width: 400px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: none;
+            border-radius: 12px;
+            padding: 0;
+        }
+
+        .notification-dropdown .dropdown-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            font-weight: 600;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .notification-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background: #f9fafb;
+        }
+
+        .notification-item.unread {
+            border-left: 4px solid #3b82f6;
+            background: #eff6ff;
+        }
+
+        .notification-item .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-right: 15px;
+        }
+
+        .notification-item .notification-icon.info { background: #dbeafe; color: #2563eb; }
+        .notification-item .notification-icon.success { background: #d1fae5; color: #059669; }
+        .notification-item .notification-icon.warning { background: #fef3c7; color: #d97706; }
+        .notification-item .notification-icon.error { background: #fee2e2; color: #dc2626; }
+
+        .notification-item .notification-content {
+            flex: 1;
+        }
+
+        .notification-item .notification-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+            font-size: 0.9rem;
+        }
+
+        .notification-item .notification-message {
+            color: #6b7280;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .notification-item .notification-time {
+            color: #9ca3af;
+            font-size: 0.75rem;
+        }
+
+        .notification-dropdown .dropdown-divider {
+            margin: 0;
+        }
+
+        .notification-dropdown .dropdown-item {
+            padding: 12px 20px;
+            color: #4f46e5;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .notification-dropdown .dropdown-item:hover {
+            background: #f3f4f6;
+            color: #3730a3;
+        }
+
+        /* Dark Mode Notification Styles */
+        body.dark-mode .notification-dropdown {
+            background: #1e293b;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-mode .notification-item {
+            border-bottom-color: #334155;
+        }
+
+        body.dark-mode .notification-item:hover {
+            background: #334155;
+        }
+
+        body.dark-mode .notification-item.unread {
+            background: #1e40af;
+        }
+
+        body.dark-mode .notification-item .notification-title {
+            color: #f8fafc;
+        }
+
+        body.dark-mode .notification-item .notification-message {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .notification-item .notification-time {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .notification-dropdown .dropdown-item {
+            color: #8ab4ff;
+        }
+
+        body.dark-mode .notification-dropdown .dropdown-item:hover {
+            background: #334155;
+            color: #c7d2fe;
+        }
+
+        /* Testimonials Section */
+        .testimonials-section {
+            padding: 100px 0;
+            text-align: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .testimonial-form-container {
+            margin-top: 60px;
+            margin-bottom: 40px;
+        }
+
+        .testimonial-form-wrapper {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .testimonial-form-wrapper h3 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .testimonial-form-wrapper p {
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .rating-input {
+            margin-bottom: 25px;
+        }
+
+        .rating-input label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .star-rating i {
+            font-size: 2rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .star-rating i:hover,
+        .star-rating i.active {
+            color: #ffd700;
+            transform: scale(1.1);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 40px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .testimonial-content {
+            text-align: center;
+        }
+
+        .quote-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .testimonial-card p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--text-gray);
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .author-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .author-info h5 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .author-info span {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        .testimonial-rating {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .star {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin: 0 2px;
+        }
+
+        .star.empty {
+            color: #e2e8f0;
+        }
+
+        /* Dark Mode Testimonials */
+        body.dark-mode .testimonials-section {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        body.dark-mode .testimonial-card,
+        body.dark-mode .testimonial-form-wrapper {
+            background: #1e293b;
+            color: #f8fafc;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+        }
+
+        body.dark-mode .testimonial-card p,
+        body.dark-mode .testimonial-form-wrapper p {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .testimonial-card h5,
+        body.dark-mode .testimonial-form-wrapper h3 {
+            color: #f8fafc;
+        }
+
+        body.dark-mode .testimonial-card span {
+            background: rgba(138, 180, 255, 0.1);
+        }
+
+    </style>
+</head>
+<body>
+    <!-- SUCCESS TOAST NOTIFICATION -->
+    <div class="success-toast" id="successToast">
+        <div class="icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="content">
+            <strong id="toastTitle">Success!</strong>
+            <p id="toastMessage">Operation completed successfully</p>
+        </div>
+        <button class="close-btn" onclick="hideToast()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fas fa-graduation-cap"></i>
+                <h2>Student Grievance System</h2>
+                <p>Login to manage your grievances</p>
+            </div>
+
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item flex-fill">
+                    <a class="nav-link active text-center" data-bs-toggle="tab" href="#loginTab">Login</a>
+                </li>
+                <li class="nav-item flex-fill">
+                    <a class="nav-link text-center" data-bs-toggle="tab" href="#registerTab">Register</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Login Tab -->
+                <div class="tab-pane fade show active" id="loginTab">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">Don't have an account? Register first then Login!</small>
+                    </div>
+                    <div class="text-center">
+                        <a href="index.html" class="btn-back-home">
+                            
+                            <i class="fas fa-home me-2"></i>Back to Home
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Register Tab -->
+                <div class="tab-pane fade" id="registerTab">
+                    <form id="registerForm">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="fullName" pattern="[a-zA-Z\s]+" title="Only alphabets and spaces allowed" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username" pattern="[a-zA-Z][a-zA-Z0-9]*" title="Must start with a letter, can contain letters and numbers" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Please enter a valid email address" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" name="phoneNumber" pattern="\d{11}" title="Must be exactly 11 digits" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Registration Number</label>
+                            <input type="text" class="form-control" name="registrationNumber" pattern="\d{5}" title="Must be exactly 5 digits" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Department</label>
+                            <input type="text" class="form-control" name="department" pattern="[a-zA-Z\s]+" title="Only alphabets and spaces allowed" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus me-2"></i>Register
+                        </button>
+                    </form>
+                    <div class="text-center">
+                        <a href="index.html" class="btn-back-home">
+                            <i class="fas fa-home me-2"></i>Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page (Hidden Initially) -->
+    <div id="dashboardPage" style="display: none;">
+        <!-- Enhanced Navbar with Active States -->
+        <nav class="navbar navbar-expand-lg navbar-custom">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-graduation-cap me-2"></i>Grievance System
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" id="navDashboard">
+                                <i class="fas fa-home"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" id="navGrievances">
+                                <i class="fas fa-list"></i>Grievances
+                            </a>
+                        </li>
+                        <li class="nav-item" id="navReviewsItem" style="display: none;">
+                            <a class="nav-link" href="#" id="navReviews">
+                                <i class="fas fa-star"></i>Reviews
+                            </a>
+                        </li>
+                        <li class="nav-item" id="navReportsItem" style="display: none;">
+                   <a class="nav-link" href="#" id="navReports">
+            <i class="fas fa-chart-bar"></i>Reports
+        </a>
+    </li>
+                        <li class="nav-item">
+                            <span class="nav-link" id="userName" style="cursor: default;"></span>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <button class="nav-link notification-btn" id="notificationBtn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
+                            </button>
+                            <ul class="dropdown-menu notification-dropdown" id="notificationDropdown">
+                                <li><h6 class="dropdown-header">Notifications</h6></li>
+                                <li><div class="notification-list" id="notificationList">
+                                    <div class="text-center text-muted py-3">
+                                        <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                        <p>No new notifications</p>
+                                    </div>
+                                </div></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-center" href="#" id="viewAllNotifications">View All Notifications</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Switch to dark mode" style="background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 42px; height: 42px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; margin-left: 10px;">
+                                <i class="fas fa-moon"></i>
+                            </button>
+                        </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>Logout
+        </a>
+    </li>
+</ul>
+</div>
+</div>
+</nav>
+        <div class="dashboard-container">
+            <!-- Statistics Cards -->
+            <div id="statsSection" class="row">
+                <!-- Stats will be loaded here -->
+            </div>
+
+            <!-- Charts Section (Admin Only) -->
+            <div id="chartsSection" style="display: none;">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="content-card">
+                            <h5 class="mb-4"><i class="fas fa-chart-pie me-2"></i>Status Distribution</h5>
+                            <div class="chart-container">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="content-card">
+                            <h5 class="mb-4"><i class="fas fa-chart-bar me-2"></i>Priority Breakdown</h5>
+                            <div class="chart-container">
+                                <canvas id="priorityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-lg-6">
+                        <div class="content-card">
+                            <h5 class="mb-4"><i class="fas fa-tags me-2"></i>Category Analysis</h5>
+                            <div class="chart-container">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="content-card">
+                            <h5 class="mb-4"><i class="fas fa-chart-line me-2"></i>Monthly Trend</h5>
+                            <div class="chart-container">
+                                <canvas id="trendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="content-card">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                    <h3 id="contentTitle">My Grievances</h3>
+                    <div>
+                        <button class="btn btn-primary me-2" id="newGrievanceBtn">
+                            <i class="fas fa-plus me-2"></i>New Grievance
+                        </button>
+                        <button class="btn btn-success me-2" id="downloadPDFBtn" style="display: none;">
+                            <i class="fas fa-file-pdf me-2"></i>Download PDF
+                        </button>
+                        <button class="btn btn-info" id="downloadExcelBtn" style="display: none;">
+                            <i class="fas fa-file-excel me-2"></i>Download Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search and Filter Section -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="grievanceSearch" placeholder="Search grievances by ID, title, category, status, or student name...">
+                            <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex gap-2">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Resolved">Resolved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                            <select class="form-select" id="priorityFilter">
+                                <option value="">All Priority</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="grievancesTable">
+                    <!-- Table will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Review Submission Section (Students Only) -->
+            <div id="reviewSection" class="content-card" style="display: none;">
+                <h3 class="mb-4"><i class="fas fa-star me-2"></i>Share Your Feedback</h3>
+                <p class="text-muted mb-4">Help us improve by sharing your experience with our grievance management system.</p>
+
+                <form id="reviewForm">
+                    <div class="mb-3">
+                        <label class="form-label">Overall Rating</label>
+                        <div class="rating-stars" id="ratingStars">
+                            <i class="far fa-star" data-rating="1"></i>
+                            <i class="far fa-star" data-rating="2"></i>
+                            <i class="far fa-star" data-rating="3"></i>
+                            <i class="far fa-star" data-rating="4"></i>
+                            <i class="far fa-star" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="ratingValue" name="rating" value="0">
+                        <small class="text-muted">Click on the stars to rate</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Your Review</label>
+                        <textarea class="form-control" name="reviewText" rows="4" placeholder="Tell us about your experience..." required></textarea>
+                        <small class="text-muted">Please share your honest feedback to help us improve our services.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Review
+                    </button>
+                </form>
+            </div>
+
+            <!-- Testimonials Section -->
+            <section class="testimonials-section">
+                <div class="container">
+                    <h2>What Students Say</h2>
+                    <p>Real experiences from our community</p>
+                    <div class="testimonial-form-container">
+                        <div class="testimonial-form-wrapper">
+                            <h3>Share Your Experience</h3>
+                            <p>Help us improve by sharing your feedback</p>
+                            <form id="testimonialForm">
+                                <div class="rating-input">
+                                    <label>Your Rating</label>
+                                    <div class="star-rating">
+                                        <i class="far fa-star" data-rating="1"></i>
+                                        <i class="far fa-star" data-rating="2"></i>
+                                        <i class="far fa-star" data-rating="3"></i>
+                                        <i class="far fa-star" data-rating="4"></i>
+                                        <i class="far fa-star" data-rating="5"></i>
+                                    </div>
+                                    <input type="hidden" id="testimonialRating" name="rating" value="0">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Your Testimonial</label>
+                                    <textarea class="form-control" name="testimonialText" rows="4" placeholder="Share your experience..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit Testimonial</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="testimonials-grid" id="testimonialsGrid">
+                        <!-- Testimonials will be loaded here -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Submit Grievance Modal -->
+    <div class="modal fade" id="submitGrievanceModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Submit New Grievance</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="submitGrievanceForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="categoryId" required>
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Priority</label>
+                            <select class="form-select" name="priority" required>
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-control" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="description" rows="5" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Attach Proof (Image or PDF)</label>
+                            <label for="fileInput" class="file-upload-box" id="fileUploadBox">
+                                <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-muted"></i>
+                                <p class="mb-2">Drag & drop your file here or click to browse</p>
+                                <small class="text-muted">Supported: JPG, PNG, PDF (Max 10MB)</small>
+                            </label>
+                            <input type="file" id="fileInput" name="attachment" accept=".jpg,.jpeg,.png,.pdf" style="display: none;">
+                            <div id="filePreview"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Submit Grievance
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Grievance Modal -->
+    <div class="modal fade" id="viewGrievanceModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Grievance Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="grievanceDetails">
+                    <!-- Details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+        let grievanceModal, viewModal;
+        let selectedFile = null;
+        let statusChart, priorityChart, trendChart, categoryChart;
+        let allGrievances = []; // Store all grievances for filtering
+        let allNotifications = []; // Store all notifications
+
+        // ==================== SUCCESS TOAST FUNCTIONS ====================
+        function showToast(title, message, type = 'success') {
+            const toast = document.getElementById('successToast');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('.icon i');
+            
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            if (type === 'error') {
+                toast.classList.add('error');
+                icon.className = 'fas fa-exclamation-circle';
+            } else {
+                toast.classList.remove('error');
+                icon.className = 'fas fa-check-circle';
+            }
+            
+            toast.classList.remove('hiding');
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                hideToast();
+            }, 5000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('successToast');
+            toast.classList.add('hiding');
+            
+            setTimeout(() => {
+                toast.classList.remove('show', 'hiding');
+            }, 500);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            grievanceModal = new bootstrap.Modal(document.getElementById('submitGrievanceModal'));
+            viewModal = new bootstrap.Modal(document.getElementById('viewGrievanceModal'));
+
+            // Event Listeners
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            document.getElementById('newGrievanceBtn').addEventListener('click', () => {
+                loadCategories();
+                selectedFile = null;
+                document.getElementById('filePreview').innerHTML = '';
+                grievanceModal.show();
+            });
+            document.getElementById('submitGrievanceForm').addEventListener('submit', handleSubmitGrievance);
+
+            // Enhanced Navbar Active States
+            document.getElementById('navDashboard').addEventListener('click', (e) => {
+                e.preventDefault();
+                setActiveNav('navDashboard');
+                loadDashboard();
+            });
+            document.getElementById('navGrievances').addEventListener('click', (e) => {
+                e.preventDefault();
+                setActiveNav('navGrievances');
+                loadGrievances();
+            });
+            document.getElementById('navReviews').addEventListener('click', (e) => {
+                e.preventDefault();
+                setActiveNav('navReviews');
+                showReviewSection();
+            });
+
+            // Search and Filter Event Listeners
+            document.getElementById('grievanceSearch').addEventListener('input', filterGrievances);
+            document.getElementById('statusFilter').addEventListener('change', filterGrievances);
+            document.getElementById('priorityFilter').addEventListener('change', filterGrievances);
+            document.getElementById('clearSearch').addEventListener('click', clearSearch);
+
+            // Testimonials functionality
+            document.getElementById('testimonialForm').addEventListener('submit', handleTestimonialSubmit);
+
+            // Star rating functionality
+            const starRating = document.querySelector('.star-rating');
+            const ratingInput = document.getElementById('testimonialRating');
+
+            starRating.addEventListener('click', (e) => {
+                if (e.target.tagName === 'I') {
+                    const rating = parseInt(e.target.getAttribute('data-rating'));
+                    ratingInput.value = rating;
+
+                    // Update visual feedback
+                    starRating.querySelectorAll('i').forEach((star, index) => {
+                        if (index < rating) {
+                            star.classList.add('active');
+                        } else {
+                            star.classList.remove('active');
+                        }
+                    });
+                }
+            });
+
+            // Also handle star rating in review section if it exists
+            const reviewStarRating = document.querySelector('#ratingStars');
+            const reviewRatingInput = document.getElementById('ratingValue');
+
+            if (reviewStarRating && reviewRatingInput) {
+                reviewStarRating.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'I') {
+                        const rating = parseInt(e.target.getAttribute('data-rating'));
+                        reviewRatingInput.value = rating;
+
+                        // Update visual feedback
+                        reviewStarRating.querySelectorAll('i').forEach((star, index) => {
+                            if (index < rating) {
+                                star.classList.add('active');
+                            } else {
+                                star.classList.remove('active');
+                            }
+                        });
+                    }
+                });
+            }
+
+        // Notification functionality
+            document.getElementById('notificationBtn').addEventListener('click', loadNotifications);
+            document.getElementById('viewAllNotifications').addEventListener('click', () => {
+                // For now, just reload the dashboard
+                loadDashboard();
+            });
+
+            // Load notifications on page load
+            if (currentUser) {
+                loadNotifications();
+            }
+
+            document.getElementById('downloadPDFBtn').addEventListener('click', downloadPDFReport);
+            document.getElementById('downloadExcelBtn').addEventListener('click', downloadExcelReport);
+
+            // Load notifications periodically
+            setInterval(() => {
+                if (currentUser) {
+                    loadNotifications();
+                }
+            }, 30000); // Check every 30 seconds
+
+            // File upload handlers
+            const fileUploadBox = document.getElementById('fileUploadBox');
+            const fileInput = document.getElementById('fileInput');
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+
+            // Drag and drop
+            fileUploadBox.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadBox.classList.add('dragover');
+            });
+
+            fileUploadBox.addEventListener('dragleave', () => {
+                fileUploadBox.classList.remove('dragover');
+            });
+
+            fileUploadBox.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadBox.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    handleFileSelect(e.dataTransfer.files[0]);
+                }
+            });
+        });
+
+        // Set Active Navigation
+        function setActiveNav(activeId) {
+            document.querySelectorAll('.navbar-custom .nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(activeId).classList.add('active');
+        }
+
+        function handleFileSelect(file) {
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+
+            if (!allowedTypes.includes(file.type)) {
+                showToast('Invalid File Type', 'Only JPG, PNG, and PDF are allowed.', 'error');
+                return;
+            }
+
+            if (file.size > maxSize) {
+                showToast('File Too Large', 'File size exceeds 10MB limit.', 'error');
+                return;
+            }
+
+            selectedFile = file;
+            
+            const iconClass = file.type === 'application/pdf' ? 'fa-file-pdf' : 'fa-file-image';
+            const preview = `
+                <div class="attachment-preview">
+                    <i class="fas ${iconClass}"></i>
+                    <div class="flex-grow-1">
+                        <strong>${file.name}</strong><br>
+                        <small class="text-muted">${(file.size / 1024).toFixed(2)} KB</small>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeFile()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            document.getElementById('filePreview').innerHTML = preview;
+        }
+
+        function removeFile() {
+            selectedFile = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('filePreview').innerHTML = '';
+        }
+
+        // Authentication
+        async function handleLogin(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: formData.get('username'),
+                        password: formData.get('password')
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentUser = data.user;
+                    document.getElementById('userName').textContent = currentUser.FullName;
+                    document.getElementById('loginPage').style.display = 'none';
+                    document.getElementById('dashboardPage').style.display = 'block';
+                    
+                    // Show success toast
+                    showToast('Login Successful!', `Welcome back, ${currentUser.FullName}!`, 'success');
+                    
+                    // Show/hide elements based on role
+                    if (currentUser.UserRole === 'Administrator') {
+                        document.getElementById('navReportsItem').style.display = 'block';
+                        document.getElementById('downloadPDFBtn').style.display = 'inline-block';
+                        document.getElementById('downloadExcelBtn').style.display = 'inline-block';
+                        document.getElementById('chartsSection').style.display = 'block';
+                        document.getElementById('newGrievanceBtn').style.display = 'none';
+                        document.querySelector('.testimonial-form-container').style.display = 'none';
+                    } else {
+                        document.getElementById('newGrievanceBtn').style.display = 'inline-block';
+                        document.querySelector('.testimonial-form-container').style.display = 'block';
+                    }
+                    
+                    loadDashboard();
+                    loadTestimonials();
+                } else {
+                    showToast('Login Failed', data.message || 'Invalid credentials', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast('Connection Error', 'Failed to connect to server. Please ensure the backend is running.', 'error');
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            // Validate required fields
+            const requiredFields = ['fullName', 'username', 'email', 'phoneNumber', 'registrationNumber', 'department', 'password'];
+            const emptyFields = requiredFields.filter(field => !formData.get(field) || formData.get(field).trim() === '');
+
+            if (emptyFields.length > 0) {
+                showToast('Required Fields Missing', 'Please fill in all required fields before submitting.', 'error');
+                return;
+            }
+
+            // Validate field patterns
+            const fullName = formData.get('fullName').trim();
+            const username = formData.get('username').trim();
+            const email = formData.get('email').trim();
+            const phoneNumber = formData.get('phoneNumber').trim();
+            const registrationNumber = formData.get('registrationNumber').trim();
+            const department = formData.get('department').trim();
+
+            // Full Name validation
+            if (!/^[a-zA-Z\s]+$/.test(fullName)) {
+                showToast('Invalid Full Name', 'Full name can only contain alphabets and spaces.', 'error');
+                return;
+            }
+
+            // Username validation
+            if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(username)) {
+                showToast('Invalid Username', 'Username must start with a letter and can only contain letters and numbers.', 'error');
+                return;
+            }
+
+            // Email validation
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showToast('Invalid Email', 'Please enter a valid email address.', 'error');
+                return;
+            }
+
+            // Phone Number validation
+            if (!/^\d{11}$/.test(phoneNumber)) {
+                showToast('Invalid Phone Number', 'Phone number must be exactly 11 digits.', 'error');
+                return;
+            }
+
+            // Registration Number validation
+            if (!/^\d{5}$/.test(registrationNumber)) {
+                showToast('Invalid Registration Number', 'Registration number must be exactly 5 digits.', 'error');
+                return;
+            }
+
+            // Department validation
+            if (!/^[a-zA-Z\s]+$/.test(department)) {
+                showToast('Invalid Department', 'Department can only contain alphabets and spaces.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: username,
+                        password: formData.get('password'),
+                        fullName: fullName,
+                        email: email,
+                        phoneNumber: phoneNumber,
+                        department: department,
+                        registrationNumber: registrationNumber
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('Registration Successful!', 'A welcome email has been sent. Please login to continue.', 'success');
+                    e.target.reset();
+                    document.querySelector('[href="#loginTab"]').click();
+                } else {
+                    showToast('Registration Failed', data.message || 'Unable to register', 'error');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showToast('Registration Failed', 'Failed to register. Please try again.', 'error');
+            }
+        }
+
+        function handleLogout() {
+            const userName = currentUser ? currentUser.FullName : 'User';
+            
+            currentUser = null;
+            selectedFile = null;
+            document.getElementById('dashboardPage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('loginForm').reset();
+            document.getElementById('navReportsItem').style.display = 'none';
+            document.getElementById('downloadPDFBtn').style.display = 'none';
+            document.getElementById('downloadExcelBtn').style.display = 'none';
+            document.getElementById('chartsSection').style.display = 'none';
+            
+            // Destroy charts
+            if (statusChart) statusChart.destroy();
+            if (priorityChart) priorityChart.destroy();
+            if (trendChart) trendChart.destroy();
+            if (categoryChart) categoryChart.destroy();
+            
+            // Show logout success toast
+            showToast('Logged Out Successfully', `Goodbye, ${userName}! See you soon.`, 'success');
+        }
+
+        // Dashboard
+        async function loadDashboard() {
+            try {
+                   // Load stats based on user role - students see only their stats, admins see all
+                 const statsUrl = currentUser.UserRole === 'Administrator'
+                    ? `${API_URL}/dashboard/stats`
+                    : `${API_URL}/dashboard/stats?studentId=${currentUser.UserID}`;
+
+               const response = await fetch(statsUrl);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.stats;
+                    const statsHTML = `
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card">
+                                <div class="stat-icon pending"><i class="fas fa-clock"></i></div>
+                                <div class="stat-number">${stats.PendingCount}</div>
+                                <div class="stat-label">Pending</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card">
+                                <div class="stat-icon progress"><i class="fas fa-spinner"></i></div>
+                                <div class="stat-number">${stats.InProgressCount}</div>
+                                <div class="stat-label">In Progress</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card">
+                                <div class="stat-icon resolved"><i class="fas fa-check-circle"></i></div>
+                                <div class="stat-number">${stats.ResolvedCount}</div>
+                                <div class="stat-label">Resolved</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stat-card">
+                                <div class="stat-icon rejected"><i class="fas fa-times-circle"></i></div>
+                                <div class="stat-number">${stats.RejectedCount}</div>
+                                <div class="stat-label">Rejected</div>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('statsSection').innerHTML = statsHTML;
+
+                    // Load charts for admin
+                    if (currentUser.UserRole === 'Administrator') {
+                        loadCharts(stats);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+            
+            loadGrievances();
+        }
+
+        // Charts
+        function loadCharts(stats) {
+            // Status Distribution Chart
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            if (statusChart) statusChart.destroy();
+            statusChart = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'In Progress', 'Resolved', 'Rejected'],
+                    datasets: [{
+                        data: [stats.PendingCount, stats.InProgressCount, stats.ResolvedCount, stats.RejectedCount],
+                        backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: { size: 14 }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Priority Breakdown Chart
+            fetch(`${API_URL}/dashboard/priority-stats`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+                        if (priorityChart) priorityChart.destroy();
+                        priorityChart = new Chart(priorityCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['Low', 'Medium', 'High', 'Critical'],
+                                datasets: [{
+                                    label: 'Number of Grievances',
+                                    data: data.priorities || [0, 0, 0, 0],
+                                    backgroundColor: ['#3b82f6', '#f59e0b', '#fb923c', '#ef4444'],
+                                    borderRadius: 10
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { display: false }
+                                },
+                                scales: {
+                                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                                }
+                            }
+                        });
+                    }
+                });
+
+            // Category Analysis Chart
+            fetch(`${API_URL}/dashboard/category-stats`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+                        if (categoryChart) categoryChart.destroy();
+                        categoryChart = new Chart(categoryCtx, {
+                            type: 'pie',
+                            data: {
+                                labels: data.categories || [],
+                                datasets: [{
+                                    label: 'Number of Grievances',
+                                    data: data.totalCounts || [],
+                                    backgroundColor: [
+                                        '#3b82f6', '#f59e0b', '#10b981', '#ef4444',
+                                        '#8b5cf6', '#06b6d4', '#f97316', '#84cc16'
+                                    ],
+                                    borderWidth: 0
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: {
+                                            padding: 20,
+                                            font: { size: 12 }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+
+            // Daily Trend Chart
+            fetch(`${API_URL}/dashboard/daily-trend`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const trendCtx = document.getElementById('trendChart').getContext('2d');
+                        if (trendChart) trendChart.destroy();
+                        trendChart = new Chart(trendCtx, {
+                            type: 'line',
+                            data: {
+                                labels: data.days || ['Jan 1', 'Jan 2', 'Jan 3', 'Jan 4', 'Jan 5', 'Jan 6'],
+                                datasets: [{
+                                    label: 'Grievances Submitted',
+                                    data: data.counts || [0, 0, 0, 0, 0, 0],
+                                    borderColor: '#4f46e5',
+                                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                                    tension: 0.4,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'top'
+                                    }
+                                },
+                                scales: {
+                                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                                }
+                            }
+                        });
+                    }
+                });
+        }
+
+        // Grievances
+        async function loadGrievances() {
+            try {
+                const endpoint = currentUser.UserRole === 'Administrator'
+                    ? `${API_URL}/grievances/all`
+                    : `${API_URL}/grievances/student/${currentUser.UserID}`;
+
+                const response = await fetch(endpoint);
+                const data = await response.json();
+
+                if (data.success) {
+                    allGrievances = data.grievances;
+                    displayGrievances(data.grievances);
+                }
+            } catch (error) {
+                console.error('Error loading grievances:', error);
+            }
+        }
+
+        function displayGrievances(grievances) {
+            const isAdmin = currentUser.UserRole === 'Administrator';
+
+            if (grievances.length === 0) {
+                document.getElementById('grievancesTable').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h4>No Grievances Found</h4>
+                        <p>There are no grievances to display.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHTML = `
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                ${isAdmin ? '<th>Student</th>' : ''}
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Attachment</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            grievances.forEach(g => {
+                const statusClass = g.Status.toLowerCase().replace(' ', '');
+                const hasAttachment = g.AttachmentFileName ? true : false;
+                tableHTML += `
+                    <tr>
+                        <td>#${g.GrievanceID}</td>
+                        ${isAdmin ? `<td>${g.StudentName}<br><small class="text-muted">${g.RegistrationNumber}</small></td>` : ''}
+                        <td>${g.Title}</td>
+                        <td>${g.CategoryName}</td>
+                        <td><span class="badge-priority badge-${g.Priority.toLowerCase()}">${g.Priority}</span></td>
+                        <td><span class="badge-status badge-${statusClass}">${g.Status}</span></td>
+                        <td>${new Date(g.SubmittedDate).toLocaleDateString()}</td>
+                        <td>
+                            ${hasAttachment ? `<small class="text-success"><i class="fas fa-paperclip"></i></small>` : '<small class="text-muted">-</small>'}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="viewGrievance(${g.GrievanceID})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table></div>';
+            document.getElementById('grievancesTable').innerHTML = tableHTML;
+        }
+
+        // Search and Filter Functions
+        function filterGrievances() {
+            const searchTerm = document.getElementById('grievanceSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+
+            let filtered = allGrievances.filter(g => {
+                const matchesSearch = g.Title.toLowerCase().includes(searchTerm) ||
+                                      g.GrievanceID.toString().includes(searchTerm) ||
+                                      g.CategoryName.toLowerCase().includes(searchTerm) ||
+                                      g.Status.toLowerCase().includes(searchTerm) ||
+                                      (g.StudentName && g.StudentName.toLowerCase().includes(searchTerm));
+                const matchesStatus = !statusFilter || g.Status === statusFilter;
+                const matchesPriority = !priorityFilter || g.Priority === priorityFilter;
+                return matchesSearch && matchesStatus && matchesPriority;
+            });
+
+            displayGrievances(filtered);
+        }
+
+        function clearSearch() {
+            document.getElementById('grievanceSearch').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('priorityFilter').value = '';
+            displayGrievances(allGrievances);
+        }
+
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_URL}/categories`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.querySelector('#submitGrievanceForm select[name="categoryId"]');
+                    select.innerHTML = '<option value="">Select Category</option>';
+                    data.categories.forEach(cat => {
+                        select.innerHTML += `<option value="${cat.CategoryID}">${cat.CategoryName}</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        async function handleSubmitGrievance(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            formData.append('studentId', currentUser.UserID);
+            
+            if (selectedFile) {
+                formData.set('attachment', selectedFile);
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/grievances`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Grievance Submitted!', 'Your grievance has been submitted successfully. You will receive email notifications.', 'success');
+                    e.target.reset();
+                    selectedFile = null;
+                    document.getElementById('filePreview').innerHTML = '';
+                    grievanceModal.hide();
+                    loadDashboard();
+                } else {
+                    showToast('Submission Failed', data.message || 'Failed to submit grievance', 'error');
+                }
+            } catch (error) {
+                console.error('Error submitting grievance:', error);
+                showToast('Submission Failed', 'Failed to submit grievance. Please try again.', 'error');
+            }
+        }
+
+        async function viewGrievance(id) {
+            try {
+                const [grievanceRes, responsesRes] = await Promise.all([
+                    fetch(`${API_URL}/grievances/${id}`),
+                    fetch(`${API_URL}/grievances/${id}/responses`)
+                ]);
+
+                const grievanceData = await grievanceRes.json();
+                const responsesData = await responsesRes.json();
+
+                if (grievanceData.success) {
+                    displayGrievanceDetails(grievanceData.grievance, responsesData.responses || []);
+                    viewModal.show();
+                }
+            } catch (error) {
+                console.error('Error loading grievance:', error);
+            }
+        }
+
+        function displayGrievanceDetails(grievance, responses) {
+            const isAdmin = currentUser.UserRole === 'Administrator';
+            const hasAttachment = grievance.AttachmentFileName ? true : false;
+            
+            let html = `
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4>${grievance.Title}</h4>
+                        <p class="text-muted">
+                            ${isAdmin ? `<strong>Student:</strong> ${grievance.StudentName} (${grievance.RegistrationNumber})<br>` : ''}
+                            <strong>Category:</strong> ${grievance.CategoryName}<br>
+                            <strong>Submitted:</strong> ${new Date(grievance.SubmittedDate).toLocaleString()}
+                        </p>
+                        <div class="mb-3">
+                            <strong>Description:</strong>
+                            <p>${grievance.Description}</p>
+                        </div>
+                        ${hasAttachment ? `
+                        <div class="mb-3">
+                            <strong>Attachment:</strong><br>
+                            <button class="btn btn-sm btn-outline-primary" onclick="downloadAttachment(${grievance.GrievanceID}, '${grievance.AttachmentFileName}')">
+                                <i class="fas fa-download me-2"></i>${grievance.AttachmentFileName}
+                            </button>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <strong>Status:</strong><br>
+                            <span class="badge-status badge-${grievance.Status.toLowerCase().replace(' ', '')}">${grievance.Status}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Priority:</strong><br>
+                            <span class="badge-priority badge-${grievance.Priority.toLowerCase()}">${grievance.Priority}</span>
+                        </div>
+                        ${isAdmin ? `
+                        <div class="mb-3">
+                            <label class="form-label">Update Status:</label>
+                            <select class="form-select" id="statusUpdate">
+                                <option value="Pending" ${grievance.Status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="In Progress" ${grievance.Status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="Resolved" ${grievance.Status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+                                <option value="Rejected" ${grievance.Status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm mt-2 w-100" onclick="updateStatus(${grievance.GrievanceID})">
+                                <i class="fas fa-sync me-2"></i>Update Status
+                            </button>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h5>Responses</h5>
+                <div id="responsesSection">
+            `;
+
+            if (responses.length === 0) {
+                html += '<p class="text-muted">No responses yet.</p>';
+            } else {
+                responses.forEach(r => {
+                    html += `
+                        <div class="response-item">
+                            <div class="response-header">
+                                <span class="response-author">
+                                    <i class="fas fa-user-circle me-2"></i>${r.ResponderName} (${r.ResponderRole})
+                                </span>
+                                <span class="response-date">${new Date(r.ResponseDate).toLocaleString()}</span>
+                            </div>
+                            <div class="response-text">${r.ResponseText}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `
+                </div>
+                
+                <div class="mt-4">
+                    <h6>Add Response</h6>
+                    <form id="addResponseForm" onsubmit="addResponse(event, ${grievance.GrievanceID})">
+                        <textarea class="form-control mb-2" name="responseText" rows="3" placeholder="Type your response..." required></textarea>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-reply me-2"></i>Add Response
+                        </button>
+                    </form>
+                </div>
+            `;
+
+            document.getElementById('grievanceDetails').innerHTML = html;
+        }
+
+        async function updateStatus(grievanceId) {
+            const status = document.getElementById('statusUpdate').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/grievances/${grievanceId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: status,
+                        adminId: currentUser.UserID
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Status Updated!', 'Status updated successfully! Student will receive an email notification.', 'success');
+                    viewModal.hide();
+                    loadDashboard();
+                } else {
+                    showToast('Update Failed', 'Failed to update status', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+                showToast('Update Failed', 'Failed to update status', 'error');
+            }
+        }
+
+        async function addResponse(event, grievanceId) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            try {
+                const response = await fetch(`${API_URL}/grievances/${grievanceId}/responses`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        responderId: currentUser.UserID,
+                        responseText: formData.get('responseText')
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Response Added!', 'Your response has been added successfully.', 'success');
+                    viewGrievance(grievanceId);
+                } else {
+                    showToast('Failed', 'Failed to add response', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding response:', error);
+                showToast('Failed', 'Failed to add response', 'error');
+            }
+        }
+
+        async function downloadAttachment(grievanceId, fileName) {
+            try {
+                const response = await fetch(`${API_URL}/grievances/${grievanceId}/attachment`);
+                const blob = await response.blob();
+                
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                showToast('Download Started', `Downloading ${fileName}...`, 'success');
+            } catch (error) {
+                console.error('Error downloading attachment:', error);
+                showToast('Download Failed', 'Failed to download attachment', 'error');
+            }
+        }
+
+        // Report Generation
+        async function downloadPDFReport() {
+            try {
+                const startDate = prompt('Enter start date (YYYY-MM-DD) or leave blank for last month:');
+                const endDate = prompt('Enter end date (YYYY-MM-DD) or leave blank for today:');
+                
+                let url = `${API_URL}/reports/pdf?`;
+                if (startDate) url += `startDate=${startDate}&`;
+                if (endDate) url += `endDate=${endDate}`;
+                
+                showToast('Generating Report', 'Your PDF report is being generated...', 'success');
+                window.open(url, '_blank');
+            } catch (error) {
+                console.error('Error downloading PDF:', error);
+                showToast('Download Failed', 'Failed to generate PDF report', 'error');
+            }
+        }
+
+        async function downloadExcelReport() {
+            try {
+                const startDate = prompt('Enter start date (YYYY-MM-DD) or leave blank for last month:');
+                const endDate = prompt('Enter end date (YYYY-MM-DD) or leave blank for today:');
+
+                let url = `${API_URL}/reports/excel?`;
+                if (startDate) url += `startDate=${startDate}&`;
+                if (endDate) url += `endDate=${endDate}`;
+
+                showToast('Generating Report', 'Your Excel report is being generated...', 'success');
+                window.open(url, '_blank');
+            } catch (error) {
+                console.error('Error downloading Excel:', error);
+                showToast('Download Failed', 'Failed to generate Excel report', 'error');
+            }
+        }
+
+        // Testimonials functionality
+        async function handleTestimonialSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            // Validate rating
+            const rating = formData.get('rating');
+            if (!rating || rating === '0') {
+                showToast('Rating Required', 'Please select a rating before submitting your testimonial.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/testimonials`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: currentUser.UserID,
+                        rating: rating,
+                        testimonialText: formData.get('testimonialText')
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('Testimonial Submitted!', 'Thank you for sharing your feedback!', 'success');
+                    e.target.reset();
+                    // Reset star rating display
+                    document.querySelectorAll('.star-rating i').forEach(star => {
+                        star.classList.remove('active');
+                    });
+                    loadTestimonials();
+                } else {
+                    showToast('Submission Failed', data.message || 'Failed to submit testimonial', 'error');
+                }
+            } catch (error) {
+                console.error('Error submitting testimonial:', error);
+                showToast('Submission Failed', 'Failed to submit testimonial. Please try again.', 'error');
+            }
+        }
+
+        async function loadTestimonials() {
+            try {
+                const response = await fetch(`${API_URL}/testimonials`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayTestimonials(data.testimonials);
+                }
+            } catch (error) {
+                console.error('Error loading testimonials:', error);
+            }
+        }
+
+        function displayTestimonials(testimonials) {
+            const grid = document.getElementById('testimonialsGrid');
+
+            if (testimonials.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-12 text-center">
+                        <div class="empty-state">
+                            <i class="fas fa-comments"></i>
+                            <h4>No Testimonials Yet</h4>
+                            <p>Be the first to share your experience!</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            testimonials.forEach(testimonial => {
+                const stars = Array.from({length: 5}, (_, i) =>
+                    `<i class="fas fa-star ${i < testimonial.Rating ? 'star' : 'star empty'}"></i>`
+                ).join('');
+
+                html += `
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <i class="fas fa-quote-left quote-icon"></i>
+                            <p>${testimonial.ReviewText}</p>
+                            <div class="testimonial-rating">
+                                ${stars}
+                            </div>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">
+                                    ${testimonial.FullName.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="author-info">
+                                    <h5>${testimonial.FullName}</h5>
+                                    <span>${new Date(testimonial.SubmittedDate).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // Notifications functionality
+        async function loadNotifications() {
+            try {
+                const response = await fetch(`${API_URL}/notifications/${currentUser.UserID}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    allNotifications = data.notifications;
+                    displayNotifications(data.notifications);
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+
+        function displayNotifications(notifications) {
+            const list = document.getElementById('notificationList');
+            const badge = document.getElementById('notificationBadge');
+
+            if (notifications.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                        <p>No new notifications</p>
+                    </div>
+                `;
+                badge.style.display = 'none';
+                return;
+            }
+
+            let unreadCount = 0;
+            let html = '';
+
+            notifications.forEach(notification => {
+                const isUnread = !notification.IsRead;
+                if (isUnread) unreadCount++;
+
+                const iconClass = getNotificationIcon(notification.NotificationType);
+                const timeAgo = getTimeAgo(notification.CreatedDate);
+
+                html += `
+                    <div class="notification-item ${isUnread ? 'unread' : ''}" onclick="markAsRead(${notification.NotificationID})">
+                        <div class="notification-icon ${iconClass}">
+                            <i class="fas ${iconClass === 'info' ? 'fa-info-circle' : iconClass === 'success' ? 'fa-check-circle' : iconClass === 'warning' ? 'fa-exclamation-triangle' : 'fa-bell'}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notification.Title}</div>
+                            <div class="notification-message">${notification.Message}</div>
+                            <div class="notification-time">${timeAgo}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            list.innerHTML = html;
+
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'GrievanceSubmitted':
+                case 'NewGrievance':
+                    return 'success';
+                case 'StatusChange':
+                    return 'info';
+                case 'NewResponse':
+                case 'StudentResponse':
+                    return 'warning';
+                default:
+                    return 'info';
+            }
+        }
+
+        function getTimeAgo(dateString) {
+            const now = new Date();
+            const date = new Date(dateString);
+            const diffInSeconds = Math.floor((now - date) / 1000);
+
+            if (diffInSeconds < 60) return 'Just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+            return `${Math.floor(diffInSeconds / 86400)}d ago`;
+        }
+
+        async function markAsRead(notificationId) {
+            try {
+                const response = await fetch(`${API_URL}/notifications/${notificationId}/read`, {
+                    method: 'PUT'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update the notification in allNotifications
+                    const notification = allNotifications.find(n => n.NotificationID === notificationId);
+                    if (notification) {
+                        notification.IsRead = true;
+                    }
+                    displayNotifications(allNotifications);
+                }
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+            // Dark Mode Functionality
+            const themeToggleBtn = document.getElementById('themeToggle');
+            const themeToggleIcon = themeToggleBtn?.querySelector('i');
+            const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function applyTheme(theme) {
+                const isDark = theme === 'dark';
+                document.body.classList.toggle('dark-mode', isDark);
+                if (themeToggleIcon) {
+                    themeToggleIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                }
+                if (themeToggleBtn) {
+                    themeToggleBtn.setAttribute('aria-pressed', String(isDark));
+                    themeToggleBtn.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+                }
+            }
+
+            // Load theme preference on page load
+            const storedTheme = localStorage.getItem('sgms-theme');
+            applyTheme(storedTheme || (colorSchemeQuery.matches ? 'dark' : 'light'));
+
+            // Toggle theme on button click
+            themeToggleBtn?.addEventListener('click', () => {
+                const nextTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+                localStorage.setItem('sgms-theme', nextTheme);
+                applyTheme(nextTheme);
+            });
+
+         </script>
+         <footer>
+           <p style="text-align: center; color: rgba(148, 147, 147, 0.7);">&copy; 2025 Student Grievance Management System. Developed by Hadiqa & Mahnoor. All rights reserved.</p>
+
+         </footer>
+           
+</body>
+</html>

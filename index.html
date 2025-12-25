@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional Student Grievance Management System - Efficiently report, track, and resolve student grievances with real-time notifications and comprehensive analytics.">
+    <meta name="keywords" content="student grievance, complaint management, university system, grievance tracking, student support">
+    <meta name="author" content="Hadiqa & Mahnoor">
+    <meta name="robots" content="index, follow">
+    <title>SGMS - Professional Student Grievance Management System</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎓%3C/text%3E%3C/svg%3E">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3a4d74;
+            --secondary: #566fbf;
+            --accent: #7396ce;
+            --success: #059669;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --text-gray: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            overflow-x: hidden;
+            color: var(--dark);
+        }
+
+        /* LOADING ANIMATION */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-overlay.simple {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .loading-content {
+            text-align: center;
+            color: var(--primary);
+            position: relative;
+        }
+
+        /* FANCY LOADING (First Visit) */
+        .loading-content.fancy .central-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            animation: pulse 1.5s ease-in-out infinite;
+            margin-bottom: 30px;
+        }
+
+        .loading-content.fancy .floating-icons {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+        }
+
+        .loading-content.fancy .floating-icon {
+            position: absolute;
+            font-size: 2rem;
+            color: var(--secondary);
+            animation: floatAndSpread 2s ease-in-out infinite;
+        }
+
+        .loading-content.fancy .floating-icon:nth-child(1) {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: 0s;
+        }
+
+        .loading-content.fancy .floating-icon:nth-child(2) {
+            top: 25%;
+            right: 0;
+            animation-delay: 0.3s;
+        }
+
+        .loading-content.fancy .floating-icon:nth-child(3) {
+            bottom: 25%;
+            right: 0;
+            animation-delay: 0.6s;
+        }
+
+        .loading-content.fancy .floating-icon:nth-child(4) {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: 0.9s;
+        }
+
+        .loading-content.fancy .floating-icon:nth-child(5) {
+            bottom: 25%;
+            left: 0;
+            animation-delay: 1.2s;
+        }
+
+        .loading-content.fancy .floating-icon:nth-child(6) {
+            top: 25%;
+            left: 0;
+            animation-delay: 1.5s;
+        }
+
+        .loading-content.fancy .loading-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .loading-content.fancy .loading-subtext {
+            font-size: 1rem;
+            color: #6b7280;
+            animation: fadeIn 0.8s ease-in-out 0.3s both;
+        }
+
+        /* SIMPLE LOADING (Reload) */
+        .loading-content.simple .central-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-content.simple .loading-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .loading-content.simple .loading-subtext {
+            font-size: 0.9rem;
+            color: #6b7280;
+            animation: fadeIn 0.3s ease-in-out 0.2s both;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes floatAndSpread {
+            0% {
+                transform: translate(-50%, -50%) scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                transform: translate(-50%, -50%) scale(1) rotate(90deg);
+                opacity: 1;
+            }
+            40% {
+                transform: translate(-50%, -50%) scale(1.2) rotate(180deg);
+                opacity: 1;
+            }
+            60% {
+                transform: translate(-50%, -50%) scale(1) rotate(270deg);
+                opacity: 0.8;
+            }
+            80% {
+                transform: translate(-50%, -50%) scale(0.8) rotate(360deg);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .navbar-custom.scrolled {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary) !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand i {
+            font-size: 2rem;
+        }
+
+        .nav-link {
+            color: var(--dark) !important;
+            font-weight: 600;
+            margin: 0 1rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--primary) !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 50%;
+            background: var(--primary);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
+        }
+
+        .btn-login {
+            background: var(--primary);
+            color: white;
+            padding: 10px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-login:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Hero Slider Section */
+        .hero-slider-section {
+            margin-top: 76px;
+            position: relative;
+            height: 85vh;
+            overflow: hidden;
+        }
+
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(70, 100, 162, 0.85), rgba(50, 71, 139, 0.85));
+        }
+
+        /* SGMS Related Images */
+        .slide-1 {
+            background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&q=80');
+        }
+
+        .slide-2 {
+            background-image: url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1920&q=80');
+        }
+
+        .slide-3 {
+            background-image: url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=1920&q=80');
+        }
+
+        .slide-4 {
+            background-image: url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1920&q=80');
+        }
+
+        .hero-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            width: 90%;
+            max-width: 900px;
+            z-index: 10;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            text-shadow: 2px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-content p {
+            font-size: 1.4rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-get-started {
+            background: white;
+            color: var(--primary);
+            padding: 18px 50px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            border: none;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-get-started:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            color: var(--primary);
+        }
+
+        .slider-nav {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 20;
+        }
+
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .slider-dot.active {
+            background: white;
+            width: 40px;
+            border-radius: 6px;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 100px 0;
+            background: var(--light);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .section-title h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .section-title .underline {
+            width: 80px;
+            height: 4px;
+            background: var(--primary);
+            margin: 0 auto 20px;
+            border-radius: 2px;
+        }
+
+        .section-title p {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+        }
+
+        .feature-scroll-wrapper {
+            overflow: hidden;
+            padding: 20px 0;
+        }
+
+        .feature-scroll {
+            display: flex;
+            animation: scroll 40s linear infinite;
+            width: fit-content;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 30px;
+            margin: 0 15px;
+            min-width: 320px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 35px rgba(37, 99, 235, 0.15);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--dark);
+            text-align: center;
+        }
+
+        .feature-card p {
+            color: var(--text-gray);
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .contact-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .contact-form-wrapper {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .contact-form-wrapper h3 {
+            color: var(--dark);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .contact-form-wrapper p {
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            color: var(--dark);
+        }
+
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-control-custom::placeholder {
+            color: #94a3b8;
+        }
+
+        textarea.form-control-custom {
+            resize: vertical;
+            min-height: 140px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: none;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .contact-info {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .contact-info p {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .contact-info .phone {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Footer */
+        .footer {
+            background: #0f172a;
+            color: white;
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            text-align: center;
+        }
+
+        .footer h4 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .footer p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+        }
+
+        .social-links {
+            margin: 30px 0;
+        }
+
+        .social-icon {
+            display: inline-flex;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 12px;
+            align-items: center;
+            justify-content: center;
+            margin: 0 8px;
+            font-size: 1.4rem;
+            color: white;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+            background: var(--accent);
+        }
+        .theme-toggle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: #e2e8f0;
+    color: #0f172a;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s, transform 0.2s;
+    box-shadow: 0 6px 15px rgba(15, 23, 42, 0.15);
+}
+.theme-toggle:hover { transform: translateY(-2px); }
+body.dark-mode .theme-toggle {
+    background: #1e293b;
+    color: #facc15;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+body.dark-mode {
+    --primary: #8ab4ff;
+    --secondary: #7c3aed;
+    --accent: #a5b4fc;
+    --success: #34d399;
+    --dark: #f8fafc;
+    --light: #0b1120;
+    --text-gray: #cbd5f5;
+    background: #050a1a;
+    color: var(--dark);
+}
+
+body.dark-mode .navbar-custom {
+    background: rgba(5, 10, 26, 0.95);
+    box-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+}
+body.dark-mode .nav-link { color: var(--dark) !important; }
+body.dark-mode .nav-link::after { background: var(--primary); }
+body.dark-mode .btn-login,
+body.dark-mode .btn-get-started { background: var(--primary); color: #050a1a; }
+body.dark-mode .about-section { background: #0f172a; }
+body.dark-mode .testimonials-section { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+body.dark-mode .faq-section { background: #0f172a; }
+body.dark-mode .section-title h2,
+body.dark-mode .section-title p { color: var(--dark); }
+body.dark-mode .feature-card,
+body.dark-mode .contact-form-wrapper,
+body.dark-mode .testimonial-card,
+body.dark-mode .faq-item,
+body.dark-mode .success-message {
+    background: #111a2e;
+    color: var(--dark);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+}
+body.dark-mode .feature-card p,
+body.dark-mode .contact-form-wrapper p,
+body.dark-mode .testimonial-card p,
+body.dark-mode .faq-answer p { color: var(--text-gray); }
+body.dark-mode .testimonial-card h5,
+body.dark-mode .faq-question h4 { color: var(--dark); }
+body.dark-mode .testimonial-card span,
+body.dark-mode .faq-question:hover { background: rgba(138, 180, 255, 0.1); }
+body.dark-mode .faq-answer { background: #111a2e; }
+body.dark-mode .form-control-custom {
+    background: #050a1a;
+    border-color: rgba(138, 180, 255, 0.4);
+    color: var(--dark);
+}
+body.dark-mode .form-control-custom:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(138, 180, 255, 0.25);
+}
+body.dark-mode .btn-submit { background: var(--primary); color: #050a1a; }
+body.dark-mode .footer {
+    background: #050a1a;
+    color: var(--dark);
+}
+body.dark-mode .footer .social-icon { color: var(--dark); border-color: rgba(255, 255, 255, 0.1); }
+body.dark-mode .success-message { border-left: 6px solid var(--success); }
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 40px;
+            padding-top: 30px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Success Message */
+        .success-message {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: white;
+            color: var(--success);
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 9999;
+            border-left: 4px solid var(--success);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .success-message.show {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .success-message i {
+            font-size: 1.5rem;
+        }
+
+        /* Testimonials Section */
+        .testimonials-section {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .testimonial-content {
+            text-align: center;
+        }
+
+        .quote-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .testimonial-card p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--text-gray);
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .author-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .author-info h5 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .author-info span {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        .testimonial-rating {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .star {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin: 0 2px;
+        }
+
+        .star.empty {
+            color: #e2e8f0;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+            margin-top: 60px;
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .faq-item:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .faq-question {
+            padding: 25px 30px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            border-left: 4px solid var(--primary);
+        }
+
+        .faq-question:hover {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            transform: translateX(5px);
+        }
+
+        .faq-question h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .toggle-icon {
+            color: var(--primary);
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+
+        .faq-item.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: white;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 200px;
+        }
+
+        .faq-answer p {
+            padding: 0 30px 25px;
+            margin: 0;
+            color: var(--text-gray);
+            line-height: 1.7;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 { font-size: 2.2rem; }
+            .hero-content p { font-size: 1.1rem; }
+            .section-title h2 { font-size: 2rem; }
+            .feature-card { min-width: 280px; }
+            .contact-form-wrapper { padding: 40px 25px; }
+            .hero-slider-section { height: 70vh; }
+        }
+       
+    </style>
+</head>
+<body>
+    <!-- Loading Animation -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content fancy" id="loadingContent">
+            <div class="central-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="floating-icons">
+                <i class="fas fa-bolt floating-icon"></i>
+                <i class="fas fa-shield-alt floating-icon"></i>
+                <i class="fas fa-chart-line floating-icon"></i>
+                <i class="fas fa-envelope floating-icon"></i>
+                <i class="fas fa-file-upload floating-icon"></i>
+                <i class="fas fa-chart-bar floating-icon"></i>
+            </div>
+            <div class="loading-text">Loading SGMS</div>
+            <div class="loading-subtext">Preparing your experience...</div>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle"></i>
+        <div>
+            <strong>Message Sent Successfully!</strong>
+            <p style="margin: 0; font-size: 0.9rem;">We'll get back to you soon.</p>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-graduation-cap"></i>
+                <span>SGMS</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact Us</a>
+                    </li>
+                    <li class="nav-item ms-3">
+                        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Switch to dark mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item ms-3">
+                        <button class="btn-login" onclick="window.location.href='dashboard.html'">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Slider Section -->
+    <section id="home" class="hero-slider-section">
+        <div class="slider-container">
+            <div class="slide slide-1 active"></div>
+            <div class="slide slide-2"></div>
+            <div class="slide slide-3"></div>
+            <div class="slide slide-4"></div>
+        </div>
+        
+        <div class="hero-content">
+            <h1>Student Grievance Management System</h1>
+            <p>Your Voice Matters - Report, Track, and Resolve Issues Efficiently</p>
+            <button class="btn-get-started" onclick="window.location.href='dashboard.html'">
+                Get Started
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <div class="slider-nav">
+            <span class="slider-dot active" data-slide="0"></span>
+            <span class="slider-dot" data-slide="1"></span>
+            <span class="slider-dot" data-slide="2"></span>
+            <span class="slider-dot" data-slide="3"></span>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Choose Our System?</h2>
+                <div class="underline"></div>
+                <p>Comprehensive grievance management made simple and effective</p>
+            </div>
+            <div class="feature-scroll-wrapper">
+                <div class="feature-scroll">
+                    <!-- First set -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3>Quick Response</h3>
+                        <p>Get your grievances addressed promptly with our efficient tracking system</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Secure & Private</h3>
+                        <p>Your information is protected with enterprise-grade security</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Real-time Tracking</h3>
+                        <p>Monitor your grievance status at every step of the process</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3>Email Notifications</h3>
+                        <p>Stay updated with instant email alerts on status changes</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <h3>File Attachments</h3>
+                        <p>Upload supporting documents and images as proof</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h3>Analytics & Reports</h3>
+                        <p>Comprehensive reports and statistics for administrators</p>
+                    </div>
+                    <!-- Duplicate for seamless loop -->
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3>Quick Response</h3>
+                        <p>Get your grievances addressed promptly with our efficient tracking system</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Secure & Private</h3>
+                        <p>Your information is protected with enterprise-grade security</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Real-time Tracking</h3>
+                        <p>Monitor your grievance status at every step of the process</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3>Email Notifications</h3>
+                        <p>Stay updated with instant email alerts on status changes</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <h3>File Attachments</h3>
+                        <p>Upload supporting documents and images as proof</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h3>Analytics & Reports</h3>
+                        <p>Comprehensive reports and statistics for administrators</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>What Students Say</h2>
+                <div class="underline"></div>
+                <p>Real experiences from our community</p>
+            </div>
+
+            <div class="testimonials-grid" id="testimonialsGrid">
+                <!-- Testimonials will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Frequently Asked Questions</h2>
+                <div class="underline"></div>
+                <p>Find answers to common questions</p>
+            </div>
+
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>How do I submit a grievance?</h4>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Simply log in to your account, click on "New Grievance" button, fill out the form with your details, and submit. You can also attach supporting documents.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>How long does it take to resolve a grievance?</h4>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Most grievances are addressed within 24-48 hours. Critical issues are prioritized and resolved faster. You'll receive email updates throughout the process.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>Can I upload attachments with my grievance?</h4>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, you can upload images, PDFs, and other documents up to 10MB as proof or supporting evidence for your grievance.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>What types of issues can I report?</h4>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>You can report academic issues, administrative problems, facility concerns, harassment, discrimination, and any other matters affecting your student experience.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>Is my information secure?</h4>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutely. We use enterprise-grade security measures to protect your personal information and grievance details. Only authorized personnel can access your data.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>How do I check the status of my grievance?</h4>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Log in to your dashboard and navigate to "My Grievances" section. You can view all your submitted grievances with their current status and progress.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="section-title">
+                <h2 style="color: white;">Get In Touch</h2>
+                <div class="underline" style="background: white;"></div>
+                <p style="color: rgba(255,255,255,0.9);">Have questions or feedback? We'd love to hear from you</p>
+            </div>
+            
+            <div class="contact-container">
+                <div class="contact-form-wrapper">
+                    <h3>Send us a Message</h3>
+                    <p>Fill out the form below and we'll try to respond within 24 hours</p>
+                    
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" name="name" class="form-control-custom" placeholder="Enter your full name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" class="form-control-custom" placeholder="your.email@example.com" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Your Message</label>
+                            <textarea id="message" name="message" class="form-control-custom" placeholder="Tell us how we can help you..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-paper-plane me-2"></i>Send Message
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="contact-info">
+                    <p style="color: white; font-weight: 600;">Or contact us directly at:</p>
+                    <p class="phone">
+                        <i class="fas fa-phone-alt"></i>
+                        0300-2628381
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <h4><i class="fas fa-graduation-cap me-2"></i>Student Grievance Management System</h4>
+                <p>Making your voice heard!</p>
+                <div class="social-links">
+                    <a href="https://facebook.com" target="_blank" class="social-icon" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://twitter.com" target="_blank" class="social-icon" title="X (Twitter)">
+                        <i class="fa-brands fa-x-twitter"></i>
+                      </a>                      
+                    <a href="https://instagram.com" target="_blank" class="social-icon" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://linkedin.com" target="_blank" class="social-icon" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://youtube.com" target="_blank" class="social-icon" title="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Student Grievance Management System. Developed by Hadiqa & Mahnoor. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        // Hero Slider with Dots
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.slider-dot');
+        
+        function goToSlide(index) {
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            
+            currentSlide = index;
+            
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+        }
+        
+        function nextSlide() {
+            const next = (currentSlide + 1) % slides.length;
+            goToSlide(next);
+        }
+        
+        // Auto advance slides
+        setInterval(nextSlide, 5000);
+        
+        // Dot navigation
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const slideIndex = parseInt(dot.getAttribute('data-slide'));
+                goToSlide(slideIndex);
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar-custom');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offsetTop = target.offsetTop - 76;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Loading Animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingContent = document.getElementById('loadingContent');
+
+            // Always show fancy loading animation
+            loadingContent.classList.add('fancy');
+
+            // Hide loading after animation completes
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 300); // Match transition duration
+            }, 3000); // Always use the full duration for fancy animation
+        });
+
+        // Contact form submission
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch(`${API_URL}/contact`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        message: formData.get('message')
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const successMsg = document.getElementById('successMessage');
+                    successMsg.classList.add('show');
+                    e.target.reset();
+
+                    setTimeout(() => {
+                        successMsg.classList.remove('show');
+                    }, 5000);
+                } else {
+                    alert('Failed to send message. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to send message. Please ensure the server is running.');
+            }
+        });
+        const themeToggleBtn = document.getElementById('themeToggle');
+const themeToggleIcon = themeToggleBtn?.querySelector('i');
+const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function applyTheme(theme) {
+    const isDark = theme === 'dark';
+    document.body.classList.toggle('dark-mode', isDark);
+    if (themeToggleIcon) {
+        themeToggleIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    if (themeToggleBtn) {
+        themeToggleBtn.setAttribute('aria-pressed', String(isDark));
+        themeToggleBtn.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    }
+}
+
+const storedTheme = localStorage.getItem('sgms-theme');
+applyTheme(storedTheme || (colorSchemeQuery.matches ? 'dark' : 'light'));
+
+themeToggleBtn?.addEventListener('click', () => {
+    const nextTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+    localStorage.setItem('sgms-theme', nextTheme);
+    applyTheme(nextTheme);
+});
+
+const handleSchemeChange = event => {
+    if (!localStorage.getItem('sgms-theme')) {
+        applyTheme(event.matches ? 'dark' : 'light');
+    }
+};
+if (colorSchemeQuery.addEventListener) {
+    colorSchemeQuery.addEventListener('change', handleSchemeChange);
+} else if (colorSchemeQuery.addListener) {
+    colorSchemeQuery.addListener(handleSchemeChange);
+}
+
+        // Function to render star rating
+        function renderStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += `<i class="fas fa-star star ${i > rating ? 'empty' : ''}"></i>`;
+            }
+            return stars;
+        }
+
+        // Function to create testimonial card
+        function createTestimonialCard(testimonial) {
+            return `
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="testimonial-rating">
+                            ${renderStars(testimonial.Rating || 5)}
+                        </div>
+                        <i class="fas fa-quote-left quote-icon"></i>
+                        <p>${testimonial.ReviewText || 'No review provided'}</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <h5>${testimonial.FullName || 'Anonymous'}</h5>
+                                <span>${testimonial.Department || 'Student'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to fetch and display testimonials
+        async function loadTestimonials() {
+            const testimonialsGrid = document.getElementById('testimonialsGrid');
+
+            try {
+                const response = await fetch(`${API_URL}/testimonials`);
+                const data = await response.json();
+
+                if (data.success && data.testimonials) {
+                    const testimonialsHTML = data.testimonials.map(createTestimonialCard).join('');
+                    testimonialsGrid.innerHTML = testimonialsHTML;
+                } else {
+                    testimonialsGrid.innerHTML = '<p class="text-center text-gray">No testimonials available at the moment.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading testimonials:', error);
+                testimonialsGrid.innerHTML = '<p class="text-center text-gray">Unable to load testimonials. Please try again later.</p>';
+            }
+        }
+
+
+
+        // FAQ Accordion functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', () => {
+                    const faqItem = question.parentElement;
+                    const isActive = faqItem.classList.contains('active');
+
+                    // Close all FAQ items
+                    document.querySelectorAll('.faq-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+
+                    // Open clicked item if it wasn't active
+                    if (!isActive) {
+                        faqItem.classList.add('active');
+                    }
+                });
+            });
+
+            // Load testimonials
+            loadTestimonials();
+        });
+    </script>
+</body>
+</html>
